@@ -15,8 +15,13 @@ const RootNavigator: React.FC = () => {
   useEffect(() => {
     // Check authentication status on app start
     const checkAuth = async () => {
-      const auth = await authService.isAuthenticated();
-      setIsAuthenticated(auth);
+      try {
+        const auth = await authService.isAuthenticated();
+        setIsAuthenticated(auth);
+      } catch (e) {
+        console.log('Auth error:', e);
+        setIsAuthenticated(false);
+      }
     };
     checkAuth();
   }, []);

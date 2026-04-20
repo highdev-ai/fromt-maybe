@@ -30,10 +30,10 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
       const data = await ApiService.get<Item[]>('/items');
       setItems(data);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch items');
-      Alert.alert('Error', error || 'Failed to fetch items');
+      console.log(err);
+      setItems([]);
     } finally {
-      setLoading(false);
+      //setLoading(false);
     }
   };
 
@@ -82,7 +82,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
       <Text style={styles.title}>Items</Text>
       <FlatList
         data={items}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
         onRefresh={handleRefresh}
         refreshing={loading}
