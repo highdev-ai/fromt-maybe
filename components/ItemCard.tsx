@@ -1,21 +1,24 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Item } from '../types';
+import { NewsItem } from '../types';
 
 interface ItemCardProps {
-  item: Item;
+  item: NewsItem;
 }
 
 const ItemCard: React.FC<ItemCardProps> = ({ item }) => {
-  // Truncate description for preview
-  const truncatedDescription = item.description.length > 100
-    ? `${item.description.substring(0, 100)}...`
-    : item.description;
+  // Truncate content for preview
+  const content = item.content || '';
+  const truncatedContent = content.length > 100
+    ? `${content.substring(0, 100)}...`
+    : content;
 
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.description}>{truncatedDescription}</Text>
+      <Text style={styles.content} numberOfLines={2}>
+        {truncatedContent}
+      </Text>
     </View>
   );
 };
@@ -30,19 +33,19 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 3
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#333',
+    color: '#333'
   },
-  description: {
+  content: {
     fontSize: 14,
     color: '#666',
-    lineHeight: 20,
-  },
+    lineHeight: 20
+  }
 });
 
 export default ItemCard;

@@ -8,7 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import ApiService from '../services/api';
-import { Item } from '../types';
+import { NewsItem } from '../types';
 import ItemCard from '../components/ItemCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
@@ -18,7 +18,7 @@ interface MainScreenProps {
 }
 
 const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +27,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
     try {
       setLoading(true);
       setError(null);
-      const data = await ApiService.get<Item[]>('/items');
+      const data = await ApiService.get<NewsItem[]>('/api/news');
       setItems(data);
     } catch (err: any) {
       console.log(err);
@@ -42,12 +42,12 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
   }, []);
 
   // Handle item press to navigate to details
-  const handleItemPress = (item: Item) => {
+  const handleItemPress = (item: NewsItem) => {
     navigation.navigate('Details', { item });
   };
 
   // Render item in FlatList
-  const renderItem = ({ item }: { item: Item }) => (
+  const renderItem = ({ item }: { item: NewsItem }) => (
     <TouchableOpacity onPress={() => handleItemPress(item)}>
       <ItemCard item={item} />
     </TouchableOpacity>

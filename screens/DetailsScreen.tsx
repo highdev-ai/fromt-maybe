@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Item } from '../types';
+import { NewsItem } from '../types';
 
 interface DetailsScreenProps {
   route: {
     params: {
-      item: Item;
+      item: NewsItem;
     };
   };
 }
@@ -16,7 +16,7 @@ const DetailsScreen: React.FC<DetailsScreenProps> = ({ route }) => {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.description}>{item.description}</Text>
+      <Text style={styles.content}>{item.content}</Text>
     </ScrollView>
   );
 };
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#333',
   },
-  description: {
+  content: {
     fontSize: 16,
     lineHeight: 24,
     color: '#666',

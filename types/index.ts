@@ -1,7 +1,9 @@
-export interface Item {
+export interface NewsItem {
   id: string;
   title: string;
-  description: string;
+  content: string | null;
+  source: string;
+  category: string;
 }
 
 export interface AuthResponse {
