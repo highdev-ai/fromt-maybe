@@ -13,9 +13,10 @@ import { RegisterData } from '../types';
 
 interface RegisterScreenProps {
   navigation: any;
+  setIsAuthenticated: (value: boolean) => void;
 }
 
-const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
+const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, setIsAuthenticated }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -52,9 +53,13 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
 
     setLoading(true);
     try {
-      const registerData: RegisterData = { email, password };
+      const registerData: RegisterData = { 
+        email, 
+        password, 
+        username: 'test' + Math.floor(Math.random() * 10000) 
+      };
       await authService.register(registerData);
-      // Navigation will be handled by App.tsx
+      setIsAuthenticated(true);
     } catch (error: any) {
       Alert.alert('Registration Failed', error.response?.data?.message || 'An error occurred');
     } finally {

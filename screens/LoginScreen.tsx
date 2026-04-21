@@ -13,9 +13,10 @@ import { LoginData } from '../types';
 
 interface LoginScreenProps {
   navigation: any; // Type from React Navigation
+  setIsAuthenticated: (value: boolean) => void;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, setIsAuthenticated }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -50,7 +51,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     try {
       const loginData: LoginData = { email, password };
       await authService.login(loginData);
-      // Navigation will be handled by App.tsx based on auth state
+      setIsAuthenticated(true);
     } catch (error: any) {
       Alert.alert('Login Failed', error.response?.data?.message || 'An error occurred');
     } finally {

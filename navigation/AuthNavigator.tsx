@@ -4,17 +4,24 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 
 const Stack = createNativeStackNavigator();
+type Props = {
+  setIsAuthenticated: (value: boolean) => void;
+};
 
-const AuthNavigator: React.FC = () => {
+const AuthNavigator: React.FC<Props> = ({ setIsAuthenticated }) => {
   return (
-    <Stack.Navigator
-      initialRouteName="Login"
-      screenOptions={{
-        headerShown: false, // Hide header for auth screens
-      }}
-    >
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
+     <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login">
+        {(props) => (
+          <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />
+        )}
+      </Stack.Screen>
+
+      <Stack.Screen name="Register">
+        {(props) => (
+          <RegisterScreen {...props} setIsAuthenticated={setIsAuthenticated} />
+        )}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 };

@@ -33,7 +33,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
       console.log(err);
       setItems([]);
     } finally {
-      //setLoading(false);
+      setLoading(false);
     }
   };
 

@@ -2,14 +2,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ApiService from './api';
 import { AuthResponse, LoginData, RegisterData } from '../types';
 
-const TOKEN_KEY = 'jwt_token';
+const TOKEN_KEY = 'access_token';
 
 export const authService = {
   // Login user
   async login(data: LoginData): Promise<AuthResponse> {
     try {
       const response = await ApiService.post<AuthResponse>('/auth/login', data);
-      await AsyncStorage.setItem(TOKEN_KEY, response.token);
+      await AsyncStorage.setItem(TOKEN_KEY, response.accessToken);
       return response;
     } catch (error) {
       throw error;
@@ -19,9 +19,9 @@ export const authService = {
   // Register user
   async register(data: RegisterData): Promise<AuthResponse> {
     try {
-      const response = await ApiService.post<AuthResponse>('/auth/register', data);
-      await AsyncStorage.setItem(TOKEN_KEY, response.token);
-      return response;
+      data.username = 'test' + Math.floor(Math.random() * 10000); // Generate random username
+      await ApiService.post<AuthResponse>('/auth/register', data);
+      return await this.login(data);
     } catch (error) {
       throw error;
     }

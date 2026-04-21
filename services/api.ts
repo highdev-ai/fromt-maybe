@@ -12,18 +12,17 @@ class ApiService {
       baseURL: API_BASE_URL,
       timeout: 10000,
       headers: {
-        'Content-Type': 'application/json',
-      },
+        'Content-Type': 'application/json'
+      }
     });
 
     // Add request interceptor to attach JWT token
-    this.api.interceptors.request.use(
-      async (config: AxiosRequestConfig) => {
-        const token = await AsyncStorage.getItem('jwt_token');
+    this.api.interceptors.request.use(async (config) => {
+        const token = await AsyncStorage.getItem('access_token');
         if (token) {
           config.headers = {
             ...config.headers,
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`
           };
         }
         return config;
@@ -38,7 +37,7 @@ class ApiService {
         // Handle common errors like 401 (unauthorized)
         if (error.response?.status === 401) {
           // Token might be expired, clear it
-          AsyncStorage.removeItem('jwt_token');
+          AsyncStorage.removeItem('access_token');
         }
         return Promise.reject(error);
       }

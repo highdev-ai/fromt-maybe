@@ -5,7 +5,7 @@ export interface Item {
 }
 
 export interface AuthResponse {
-  token: string;
+  accessToken: string;
   user: {
     id: string;
     email: string;
@@ -19,5 +19,6 @@ export interface LoginData {
 
 export interface RegisterData {
   email: string;
+  username: string;
   password: string;
 }
