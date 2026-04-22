@@ -17,6 +17,7 @@ const DetailsScreen: React.FC<DetailsScreenProps> = ({ route }) => {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.content}>{item.content}</Text>
+      <Text style={styles.url}>{item.url}</Text>
     </ScrollView>
   );
 };
@@ -32,6 +33,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#333',
+  },
+  url: {
+    fontSize: 16,
+    color: '#007AFF',
+    textDecorationLine: 'underline',
   },
   content: {
     fontSize: 16,

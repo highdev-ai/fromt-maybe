@@ -4,6 +4,7 @@ export interface NewsItem {
   content: string | null;
   source: string;
   category: string;
+  url: string;
 }
 
 export interface AuthResponse {
@@ -24,3 +25,11 @@ export interface RegisterData {
   username: string;
   password: string;
 }
+
+export interface FeedResponse {
+  items: NewsItem[];
+  nextCursor: {
+    publishedAt: string;
+    id: string;
+  } | null;
+};
