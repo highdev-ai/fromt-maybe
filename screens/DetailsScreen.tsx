@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { NewsItem } from '../types';
+import ApiService from '../services/api';
 
 interface DetailsScreenProps {
   route: {
@@ -13,11 +14,33 @@ interface DetailsScreenProps {
 const DetailsScreen: React.FC<DetailsScreenProps> = ({ route }) => {
   const { item } = route.params;
 
+  // щоб не відправляти VIEW кілька разів
+  const hasSentView = useRef(false);
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      try {
+        await ApiService.post('/api/interactions/event', {
+          newsId: item.id,
+          type: 'VIEW',
+        });
+      } catch (e) {
+        console.log('VIEW error:', e);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>{item.title}</Text>
+
       <Text style={styles.content}>{item.content}</Text>
-      <Text style={styles.url}>{item.url}</Text>
+
+      {item.url && (
+        <Text style={styles.url}>{item.url}</Text>
+      )}
     </ScrollView>
   );
 };
@@ -34,15 +57,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#333',
   },
-  url: {
-    fontSize: 16,
-    color: '#007AFF',
-    textDecorationLine: 'underline',
-  },
   content: {
     fontSize: 16,
     lineHeight: 24,
     color: '#666',
+  },
+  url: {
+    marginTop: 20,
+    fontSize: 16,
+    color: '#007AFF',
+    textDecorationLine: 'underline',
   },
 });
 

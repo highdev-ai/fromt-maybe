@@ -15,7 +15,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiBaseUrl": "http://192.168.0.103:8080"
+      "apiBaseUrl": "http://192.168.0.100:8080"
     }
   }
 }

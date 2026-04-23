@@ -5,6 +5,8 @@ export interface NewsItem {
   source: string;
   category: string;
   url: string;
+  liked: boolean;
+  viewed: boolean;
 }
 
 export interface AuthResponse {
@@ -26,10 +28,12 @@ export interface RegisterData {
   password: string;
 }
 
+export interface FeedCursor {
+  publishedAt: string;
+  id: string;
+}
+
 export interface FeedResponse {
   items: NewsItem[];
-  nextCursor: {
-    publishedAt: string;
-    id: string;
-  } | null;
-};
+  nextCursor: FeedCursor | null;
+}

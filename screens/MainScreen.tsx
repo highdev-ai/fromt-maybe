@@ -6,16 +6,31 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import ApiService from '../services/api';
 import { NewsItem, FeedResponse } from '../types';
 import ItemCard from '../components/ItemCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
+import GlassView from '../components/GlassView';
 
 interface MainScreenProps {
   navigation: any;
 }
+
+const categoryIcons: Record<string, string> = {
+  all: '🔥',
+  general: '📰',
+  world: '🌍',
+  nation: '🏛',
+  business: '💼',
+  technology: '💻',
+  entertainment: '🎬',
+  sports: '⚽',
+  science: '🔬',
+  health: '🏥',
+};
 
 const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
   const [items, setItems] = useState<NewsItem[]>([]);
@@ -32,19 +47,19 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
   } | null>(null);
 
   const [hasMore, setHasMore] = useState(true);
-
-  // 🔥 важливо для FlatList
   const onEndReachedCalledDuringMomentum = useRef(false);
+  const skippedItemsRef = useRef<Set<string>>(new Set());
 
   const fetchItems = async (isRefresh = false, cursorOverride: typeof cursor = null) => {
     try {
       if (isRefresh) {
         setRefreshing(true);
-      } else if (!isRefresh) {
+      } else {
         setLoadingMore(true);
       }
 
       const params: any = {
+        size: 20,
         ...(selectedCategory && { category: selectedCategory }),
       };
 
@@ -55,9 +70,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
         params.id = effectiveCursor.id;
       }
 
-      const data = await ApiService.get<FeedResponse>('/api/news/feed', {
-        params,
-      });
+      const data = await ApiService.get<FeedResponse>('/api/feed', { params });
 
       const newItems = data.items;
 
@@ -100,88 +113,186 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
     navigation.navigate('Details', { item });
   };
 
+  const handleLike = async (item: NewsItem) => {
+    const newLiked = !item.liked;
+
+    // optimistic update
+    setItems(prev =>
+      prev.map(i =>
+        i.id === item.id ? { ...i, liked: newLiked } : i
+      )
+    );
+
+    try {
+      await ApiService.put('/api/interactions/like', {
+        newsId: item.id,
+        liked: newLiked,
+      });
+    } catch (e) {
+      console.log('LIKE error:', e);
+
+      // rollback якщо треба
+      setItems(prev =>
+        prev.map(i =>
+          i.id === item.id ? { ...i, liked: item.liked } : i
+        )
+      );
+    }
+  };
+
+  const handleSkip = async (item: NewsItem) => {
+    if (skippedItemsRef.current.has(item.id)) return;
+
+    skippedItemsRef.current.add(item.id);
+
+    try {
+      await ApiService.post('/api/interactions/event', {
+        newsId: item.id,
+        type: 'SKIP',
+      });
+    } catch (e) {
+      console.log('SKIP error:', e);
+    }
+  };
+
+  const viewabilityConfig = {
+  itemVisiblePercentThreshold: 60,
+};
+
+const onViewableItemsChanged = useRef(({ changed }) => {
+  changed.forEach((viewable) => {
+    if (!viewable.isViewable) {
+      handleSkip(viewable.item);
+    }
+  });
+});
+
   const renderItem = ({ item }: { item: NewsItem }) => (
-    <TouchableOpacity onPress={() => handleItemPress(item)}>
-      <ItemCard item={item} />
-    </TouchableOpacity>
+    <ItemCard
+      item={item}
+      onPress={() => handleItemPress(item)}
+      onLike={() => handleLike(item)}
+    />
   );
 
-  if (initialLoading) {
-    return <LoadingSpinner />;
-  }
+  const renderHeader = () => (
+    <GlassView style={styles.header}>
+      <Text style={styles.title}>News</Text>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoriesContainer}
+      >
+        {categories.map((cat) => {
+          const isActive =
+            (cat === 'all' && !selectedCategory) ||
+            selectedCategory === cat;
+
+          return (
+            <TouchableOpacity
+              key={cat}
+              onPress={() => setSelectedCategory(cat === 'all' ? null : cat)}
+              style={[
+                styles.categoryButton,
+                isActive ? styles.categoryActive : styles.categoryInactive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.categoryText,
+                  isActive ? styles.categoryTextActive : styles.categoryTextInactive,
+                ]}
+              >
+                {categoryIcons[cat]} {cat}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </GlassView>
+  );
+
+  if (initialLoading) return <LoadingSpinner />;
 
   if (items.length === 0) {
     return <EmptyState onRefresh={() => fetchItems(true, null)} />;
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>News</Text>
-
-      <View style={{ flexDirection: 'row', padding: 10 }}>
-        {categories.map((cat) => (
-          <TouchableOpacity
-            key={cat}
-            onPress={() => setSelectedCategory(cat === 'all' ? null : cat)}
-            style={{
-              padding: 8,
-              marginRight: 8,
-              backgroundColor:
-                (cat === 'all' && !selectedCategory) ||
-                selectedCategory === cat
-                  ? '#007bff'
-                  : '#ccc',
-              borderRadius: 12,
-            }}
-          >
-            <Text style={{ color: '#fff' }}>{cat}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <FlatList
-        data={items}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={renderItem}
-        onEndReached={() => {
-          if (!onEndReachedCalledDuringMomentum.current) {
-            loadMore();
-            onEndReachedCalledDuringMomentum.current = true;
-          }
-        }}
-        onMomentumScrollBegin={() => {
-          onEndReachedCalledDuringMomentum.current = false;
-        }}
-        onEndReachedThreshold={0.5}
-        refreshing={refreshing}
-        onRefresh={() => {
-          setCursor(null);
-          fetchItems(true, null);
-        }}
-        contentContainerStyle={styles.listContainer}
-        ListFooterComponent={
-          loadingMore ? (
-            <ActivityIndicator style={{ margin: 16 }} />
-          ) : null
+    <FlatList
+      data={items}
+      keyExtractor={(item) => String(item.id)}
+      renderItem={renderItem}
+      ListHeaderComponent={renderHeader}
+      stickyHeaderIndices={[0]}
+      onEndReached={() => {
+        if (!onEndReachedCalledDuringMomentum.current) {
+          loadMore();
+          onEndReachedCalledDuringMomentum.current = true;
         }
-      />
-    </View>
+      }}
+      onMomentumScrollBegin={() => {
+        onEndReachedCalledDuringMomentum.current = false;
+      }}
+      onEndReachedThreshold={0.5}
+      refreshing={refreshing}
+      onRefresh={() => {
+        setCursor(null);
+        fetchItems(true, null);
+      }}
+      contentContainerStyle={styles.listContainer}
+      onViewableItemsChanged={onViewableItemsChanged.current}
+      viewabilityConfig={viewabilityConfig}
+      ListFooterComponent={
+        loadingMore ? <ActivityIndicator style={{ margin: 16 }} /> : null
+      }
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
+  header: {
+    marginHorizontal: 10,
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginVertical: 20,
+    marginBottom: 10,
   },
   listContainer: {
     paddingHorizontal: 20,
+  },
+  categoriesContainer: {
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+  },
+  categoryButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    marginRight: 8,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  categoryActive: {
+    backgroundColor: '#007bff',
+  },
+  categoryInactive: {
+    backgroundColor: '#e0e0e0',
+  },
+  categoryText: {
+    fontSize: 14,
+  },
+  categoryTextActive: {
+    color: '#fff',
+  },
+  categoryTextInactive: {
+    color: '#333',
   },
 });
 
