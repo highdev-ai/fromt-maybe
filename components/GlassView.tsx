@@ -1,34 +1,49 @@
-import React from 'react';
-import { StyleSheet, ViewStyle, useColorScheme } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, useColorScheme, Animated } from 'react-native';
 import { BlurView } from 'expo-blur';
 
-interface Props {
-    children: React.ReactNode;
-    style?: ViewStyle;
-}
+const AnimatedBlur = Animated.createAnimatedComponent(BlurView);
 
-const GlassView: React.FC<Props> = ({ children, style }) => {
-    const scheme = useColorScheme(); // ✅ ТЕПЕР ВСЕРЕДИНІ
+const GlassView = ({ children, style }) => {
+  const scheme = useColorScheme();
+  const blur = useRef(new Animated.Value(30)).current;
 
-    return (
-        <BlurView
-            intensity={40}
-            tint={scheme === 'dark' ? 'dark' : 'light'}
-            style={[styles.container, style]}
-        >
-            {children}
-        </BlurView>
-    );
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(blur, { toValue: 70, duration: 3000, useNativeDriver: false }),
+        Animated.timing(blur, { toValue: 30, duration: 3000, useNativeDriver: false }),
+      ])
+    ).start();
+  }, []);
+
+  return (
+    <AnimatedBlur
+      intensity={Math.min(80, 30 + scrollY / 5)}
+      tint={scheme === 'dark' ? 'dark' : 'light'}
+      style={[
+        styles.container,
+        {
+          backgroundColor:
+            scheme === 'dark'
+              ? 'rgba(0,0,0,0.3)'
+              : 'rgba(255,255,255,0.2)',
+        },
+        style,
+      ]}
+    >
+      {children}
+    </AnimatedBlur>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        borderRadius: 16,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
-        backgroundColor: 'rgba(255,255,255,0.1)',
-    },
+  container: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
 });
 
 export default GlassView;

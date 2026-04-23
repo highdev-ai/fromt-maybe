@@ -11,9 +11,11 @@ import {
 import ApiService from '../services/api';
 import { NewsItem, FeedResponse } from '../types';
 import ItemCard from '../components/ItemCard';
-import LoadingSpinner from '../components/LoadingSpinner';
+import SkeletonList from '../components/SkeletonList';
 import EmptyState from '../components/EmptyState';
 import GlassView from '../components/GlassView';
+import AnimatedBackground from '../components/AnimatedBackground';
+import DetailsModal from '../components/DetailsModal';
 
 interface MainScreenProps {
   navigation: any;
@@ -49,6 +51,9 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
   const [hasMore, setHasMore] = useState(true);
   const onEndReachedCalledDuringMomentum = useRef(false);
   const skippedItemsRef = useRef<Set<string>>(new Set());
+  const [selectedItem, setSelectedItem] = useState<NewsItem | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
 
   const fetchItems = async (isRefresh = false, cursorOverride: typeof cursor = null) => {
     try {
@@ -110,7 +115,8 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
   };
 
   const handleItemPress = (item: NewsItem) => {
-    navigation.navigate('Details', { item });
+    setSelectedItem(item);
+    setModalVisible(true);
   };
 
   const handleLike = async (item: NewsItem) => {
@@ -156,16 +162,16 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
   };
 
   const viewabilityConfig = {
-  itemVisiblePercentThreshold: 60,
-};
+    itemVisiblePercentThreshold: 60,
+  };
 
-const onViewableItemsChanged = useRef(({ changed }) => {
-  changed.forEach((viewable) => {
-    if (!viewable.isViewable) {
-      handleSkip(viewable.item);
-    }
+  const onViewableItemsChanged = useRef(({ changed }) => {
+    changed.forEach((viewable) => {
+      if (!viewable.isViewable) {
+        handleSkip(viewable.item);
+      }
+    });
   });
-});
 
   const renderItem = ({ item }: { item: NewsItem }) => (
     <ItemCard
@@ -213,41 +219,54 @@ const onViewableItemsChanged = useRef(({ changed }) => {
     </GlassView>
   );
 
-  if (initialLoading) return <LoadingSpinner />;
+  if (initialLoading) return <SkeletonList />;
 
   if (items.length === 0) {
     return <EmptyState onRefresh={() => fetchItems(true, null)} />;
   }
 
   return (
-    <FlatList
-      data={items}
-      keyExtractor={(item) => String(item.id)}
-      renderItem={renderItem}
-      ListHeaderComponent={renderHeader}
-      stickyHeaderIndices={[0]}
-      onEndReached={() => {
-        if (!onEndReachedCalledDuringMomentum.current) {
-          loadMore();
-          onEndReachedCalledDuringMomentum.current = true;
-        }
-      }}
-      onMomentumScrollBegin={() => {
-        onEndReachedCalledDuringMomentum.current = false;
-      }}
-      onEndReachedThreshold={0.5}
-      refreshing={refreshing}
-      onRefresh={() => {
-        setCursor(null);
-        fetchItems(true, null);
-      }}
-      contentContainerStyle={styles.listContainer}
-      onViewableItemsChanged={onViewableItemsChanged.current}
-      viewabilityConfig={viewabilityConfig}
-      ListFooterComponent={
-        loadingMore ? <ActivityIndicator style={{ margin: 16 }} /> : null
-      }
-    />
+    <AnimatedBackground>
+      <>
+        <FlatList
+          data={items}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={renderItem}
+          ListHeaderComponent={renderHeader}
+          stickyHeaderIndices={[0]}
+          onEndReached={() => {
+            if (!onEndReachedCalledDuringMomentum.current) {
+              loadMore();
+              onEndReachedCalledDuringMomentum.current = true;
+            }
+          }}
+          onMomentumScrollBegin={() => {
+            onEndReachedCalledDuringMomentum.current = false;
+          }}
+          onEndReachedThreshold={0.5}
+          refreshing={refreshing}
+          onRefresh={() => {
+            setCursor(null);
+            fetchItems(true, null);
+          }}
+          contentContainerStyle={styles.listContainer}
+          onViewableItemsChanged={onViewableItemsChanged.current}
+          onScroll={(e) => {
+            setScrollY(e.nativeEvent.contentOffset.y);
+          }}
+          scrollEventThrottle={16}
+          viewabilityConfig={viewabilityConfig}
+          ListFooterComponent={
+            loadingMore ? <ActivityIndicator style={{ margin: 16 }} /> : null
+          }
+        />
+        <DetailsModal
+          visible={modalVisible}
+          item={selectedItem}
+          onClose={() => setModalVisible(false)}
+        />
+      </>
+    </AnimatedBackground>
   );
 };
 

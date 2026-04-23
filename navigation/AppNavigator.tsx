@@ -1,12 +1,11 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainScreen from '../screens/MainScreen';
-import DetailsScreen from '../screens/DetailsScreen';
-import { Item } from '../types';
+import { NewsItem } from '../types';
 
 export type AppStackParamList = {
   Main: undefined;
-  Details: { item: Item };
+  Details: { item: NewsItem };
 };
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -18,11 +17,6 @@ const AppNavigator: React.FC = () => {
         name="Main"
         component={MainScreen}
         options={{ title: 'Items' }}
-      />
-      <Stack.Screen
-        name="Details"
-        component={DetailsScreen}
-        options={{ title: 'Item Details' }}
       />
     </Stack.Navigator>
   );
