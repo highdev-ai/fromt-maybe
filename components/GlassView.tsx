@@ -4,7 +4,7 @@ import { BlurView } from 'expo-blur';
 
 const AnimatedBlur = Animated.createAnimatedComponent(BlurView);
 
-const GlassView = ({ children, style }) => {
+const GlassView = ({ children, style, scrollY = 0 }) => {
   const scheme = useColorScheme();
   const blur = useRef(new Animated.Value(30)).current;
 

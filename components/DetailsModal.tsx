@@ -4,8 +4,6 @@ import GlassView from './GlassView';
 import ApiService from '../services/api';
 import { PanResponder } from 'react-native';
 
-const pan = useRef({ y: 0 });
-
 const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (_, gesture) => {
         return Math.abs(gesture.dy) > 10;
@@ -21,6 +19,7 @@ const panResponder = PanResponder.create({
 });
 
 const DetailsModal = ({ visible, onClose, item }) => {
+    const pan = useRef({ y: 0 });
     useEffect(() => {
         if (!item) return;
 

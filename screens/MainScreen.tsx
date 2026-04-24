@@ -178,11 +178,12 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
       item={item}
       onPress={() => handleItemPress(item)}
       onLike={() => handleLike(item)}
+      scrollY={scrollY}
     />
   );
 
   const renderHeader = () => (
-    <GlassView style={styles.header}>
+    <GlassView style={styles.header} scrollY={scrollY}>
       <Text style={styles.title}>News</Text>
 
       <ScrollView

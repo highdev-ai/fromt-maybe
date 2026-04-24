@@ -1,22 +1,23 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { NewsItem } from '../types';
 import GlassView from './GlassView';
+import { NewsItem } from '../types';
 
 interface ItemCardProps {
   item: NewsItem;
   onLike: () => void;
   onPress: () => void;
+  scrollY: number;
 }
 
-const ItemCard: React.FC<ItemCardProps> = ({ item, onLike, onPress }) => {
+const ItemCard: React.FC<ItemCardProps> = ({ item, onLike, onPress, scrollY }) => {
   const content = item.content || '';
   const truncatedContent =
     content.length > 100 ? `${content.substring(0, 100)}...` : content;
 
   return (
-    <TouchableOpacity onPress={onPress}>
-      <GlassView style={styles.card}>
+    <GlassView style={styles.card} scrollY={scrollY}>
+      <TouchableOpacity onPress={onPress}>
         <Text style={styles.title}>{item.title}</Text>
 
         <Text style={styles.content} numberOfLines={2}>
@@ -32,15 +33,15 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, onLike, onPress }) => {
             </Text>
           </TouchableOpacity>
         </View>
-      </GlassView>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </GlassView>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
     padding: 15,
-    marginBottom: 10,
+    marginBottom: 12,
     borderRadius: 16,
   },
   title: {
@@ -52,13 +53,11 @@ const styles = StyleSheet.create({
   content: {
     fontSize: 14,
     color: '#666',
-    lineHeight: 20,
   },
   footer: {
     marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
   },
   category: {
     fontSize: 12,
