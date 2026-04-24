@@ -1,21 +1,20 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
   ActivityIndicator,
+  FlatList,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity
 } from 'react-native';
-import ApiService from '../services/api';
-import { NewsItem, FeedResponse } from '../types';
-import ItemCard from '../components/ItemCard';
-import SkeletonList from '../components/SkeletonList';
-import EmptyState from '../components/EmptyState';
-import GlassView from '../components/GlassView';
 import AnimatedBackground from '../components/AnimatedBackground';
 import DetailsModal from '../components/DetailsModal';
+import EmptyState from '../components/EmptyState';
+import GlassView from '../components/GlassView';
+import ItemCard from '../components/ItemCard';
+import SkeletonList from '../components/SkeletonList';
+import ApiService from '../services/api';
+import { FeedResponse, NewsItem } from '../types';
 
 interface MainScreenProps {
   navigation: any;
@@ -55,7 +54,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
 
-  const fetchItems = async (isRefresh = false, cursorOverride: typeof cursor = null) => {
+  const fetchItems = async (isRefresh = false) => {
     try {
       if (isRefresh) {
         setRefreshing(true);
@@ -68,7 +67,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
         ...(selectedCategory && { category: selectedCategory }),
       };
 
-      const effectiveCursor = isRefresh ? null : (cursorOverride ?? cursor);
+      const effectiveCursor = isRefresh ? null : cursor;
 
       if (effectiveCursor) {
         params.publishedAt = effectiveCursor.publishedAt;
@@ -105,12 +104,13 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
     setItems([]);
     setHasMore(true);
     setInitialLoading(true);
-    fetchItems(true, null);
+    fetchItems(true);
+    onEndReachedCalledDuringMomentum.current = false;
   }, [selectedCategory]);
 
   const loadMore = () => {
     if (!loadingMore && hasMore) {
-      fetchItems(false, cursor);
+      fetchItems(false);
     }
   };
 
@@ -184,7 +184,6 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
 
   const renderHeader = () => (
     <GlassView style={styles.header} scrollY={scrollY}>
-      <Text style={styles.title}>News</Text>
 
       <ScrollView
         horizontal
@@ -223,7 +222,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
   if (initialLoading) return <SkeletonList />;
 
   if (items.length === 0) {
-    return <EmptyState onRefresh={() => fetchItems(true, null)} />;
+    return <EmptyState onRefresh={() => fetchItems(true)} />;
   }
 
   return (
@@ -248,7 +247,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
           refreshing={refreshing}
           onRefresh={() => {
             setCursor(null);
-            fetchItems(true, null);
+            fetchItems(true);
           }}
           contentContainerStyle={styles.listContainer}
           onViewableItemsChanged={onViewableItemsChanged.current}
