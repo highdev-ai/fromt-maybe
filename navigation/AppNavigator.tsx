@@ -1,5 +1,5 @@
-import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from 'react';
 import MainScreen from '../screens/MainScreen';
 import { NewsItem } from '../types';
 
@@ -12,12 +12,8 @@ const Stack = createNativeStackNavigator<AppStackParamList>();
 
 const AppNavigator: React.FC = () => {
   return (
-    <Stack.Navigator initialRouteName="Main">
-      <Stack.Screen
-        name="Main"
-        component={MainScreen}
-        options={{ title: 'Items' }}
-      />
+    <Stack.Navigator>
+      <Stack.Screen name="Main" component={MainScreen} />
     </Stack.Navigator>
   );
 };

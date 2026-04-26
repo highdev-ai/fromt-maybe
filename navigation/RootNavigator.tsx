@@ -1,11 +1,9 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useState, useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { authService } from '../services/auth';
-import AuthNavigator from './AuthNavigator';
 import AppNavigator from './AppNavigator';
+import AuthNavigator from './AuthNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,15 +33,7 @@ const RootNavigator: React.FC = () => {
     );
   }
 
-  return (
-    <NavigationContainer>
-      {isAuthenticated ? (
-        <AppNavigator />
-      ) : (
-        <AuthNavigator setIsAuthenticated={setIsAuthenticated} />
-      )}
-    </NavigationContainer>
-  );
+  return isAuthenticated ? <AppNavigator /> : <AuthNavigator setIsAuthenticated={setIsAuthenticated} />;
 };
 
 export default RootNavigator;

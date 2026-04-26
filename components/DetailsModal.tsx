@@ -1,63 +1,52 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import {
-    Animated,
     Dimensions,
     Modal,
-    PanResponder,
+    Pressable,
     ScrollView,
     StyleSheet,
     Text,
     View,
 } from 'react-native';
+
+import {
+    Gesture,
+    GestureDetector,
+} from 'react-native-gesture-handler';
+
+import Animated, {
+    runOnJS,
+    useAnimatedStyle,
+    useSharedValue,
+    withSpring,
+    withTiming,
+} from 'react-native-reanimated';
+
 import ApiService from '../services/api';
 import GlassView from './GlassView';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const DetailsModal = ({ visible, onClose, item }) => {
-  const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+const DetailsModal = ({ visible, onClose, item, mode = 'sheet' }) => {
+  const translateY = useSharedValue(SCREEN_HEIGHT);
 
-  // 👉 swipe logic
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dy) > 10,
+  const close = () => {
+    translateY.value = withTiming(SCREEN_HEIGHT, {}, () => {
+      runOnJS(onClose)();
+    });
+  };
 
-      onPanResponderMove: (_, gesture) => {
-        if (gesture.dy > 0) {
-          translateY.setValue(gesture.dy);
-        }
-      },
+  const open = () => {
+    translateY.value = withSpring(0, {
+        damping: 20,
+        stiffness: 180,
+    });
+  };
 
-      onPanResponderRelease: (_, gesture) => {
-        if (gesture.dy > 120) {
-          // close
-          Animated.timing(translateY, {
-            toValue: SCREEN_HEIGHT,
-            duration: 200,
-            useNativeDriver: true,
-          }).start(onClose);
-        } else {
-          // return назад
-          Animated.spring(translateY, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
-        }
-      },
-    })
-  ).current;
-
-  // 👉 відкриття анімації
   useEffect(() => {
-    if (visible) {
-      Animated.spring(translateY, {
-        toValue: 0,
-        useNativeDriver: true,
-      }).start();
-    }
+    if (visible) open();
   }, [visible]);
 
-  // 👉 VIEW interaction
   useEffect(() => {
     if (!item) return;
 
@@ -67,75 +56,109 @@ const DetailsModal = ({ visible, onClose, item }) => {
     });
   }, [item]);
 
+  // 🔥 НОВИЙ gesture API
+  const gesture = Gesture.Pan()
+    .onUpdate((e) => {
+      if (e.translationY > 0) {
+        translateY.value = e.translationY;
+      }
+    })
+    .onEnd((e) => {
+      if (e.translationY > 100) {
+        runOnJS(close)();
+      } else {
+        translateY.value = withSpring(0, {
+            damping: 20,
+            stiffness: 180,
+        });
+      }
+    });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
   if (!item) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.overlay}>
-        {/* затемнення */}
+    <Modal visible={visible} transparent animationType="none">
+      {/* backdrop */}
+      <Pressable style={styles.overlay} onPress={close}>
         <View style={styles.backdrop} />
+      </Pressable>
 
+      <GestureDetector gesture={gesture}>
         <Animated.View
           style={[
-            styles.sheet,
-            { transform: [{ translateY }] },
+            mode === 'sheet' ? styles.sheet : styles.floating,
+            animatedStyle,
           ]}
-          {...panResponder.panHandlers}
         >
           <GlassView style={styles.modal}>
             <View style={styles.handle} />
 
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.content}>{item.content}</Text>
-            </ScrollView>
+            {mode === 'sheet' ? (
+              <>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text numberOfLines={12} style={styles.content}>
+                  {item.content}
+                </Text>
+              </>
+            ) : (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.content}>{item.content}</Text>
+              </ScrollView>
+            )}
           </GlassView>
         </Animated.View>
-      </View>
+      </GestureDetector>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-
-  backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.4)',
   },
-
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
   sheet: {
-    height: '85%',
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    height: SCREEN_HEIGHT * 0.6,
   },
-
+  floating: {
+    position: 'absolute',
+    top: '15%',
+    left: 16,
+    right: 16,
+    maxHeight: '65%',
+  },
   modal: {
     flex: 1,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderRadius: 20,
     padding: 20,
   },
-
   handle: {
     width: 40,
     height: 5,
-    backgroundColor: '#ccc',
+    backgroundColor: '#aaa',
     alignSelf: 'center',
     borderRadius: 3,
     marginBottom: 10,
   },
-
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: 10,
   },
-
   content: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 15,
+    lineHeight: 22,
   },
 });
 
