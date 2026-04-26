@@ -85,7 +85,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, setIsAuthenticate
         )}
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.link}>Don't have an account? Register</Text>
+        <Text style={styles.link}>Don&apos;t have an account? Register</Text>
       </TouchableOpacity>
     </View>
   );

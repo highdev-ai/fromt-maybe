@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity
+  TouchableOpacity,
+  ViewToken
 } from 'react-native';
 import AnimatedBackground from '../components/AnimatedBackground';
 import DetailsModal from '../components/DetailsModal';
@@ -14,11 +15,7 @@ import GlassView from '../components/GlassView';
 import ItemCard from '../components/ItemCard';
 import SkeletonList from '../components/SkeletonList';
 import ApiService from '../services/api';
-import { FeedResponse, NewsItem } from '../types';
-
-interface MainScreenProps {
-  navigation: any;
-}
+import { FeedCursor, FeedResponse, NewsItem } from '../types';
 
 const categoryIcons: Record<string, string> = {
   all: '🔥',
@@ -33,7 +30,14 @@ const categoryIcons: Record<string, string> = {
   health: '🏥',
 };
 
-const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
+type FeedParams = {
+  size: number;
+  category?: string;
+  publishedAt?: string;
+  id?: string;
+};
+
+const MainScreen: React.FC = () => {
   const [items, setItems] = useState<NewsItem[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -42,11 +46,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const categories = ['all', 'general', 'world', 'nation', 'business', 'technology', 'entertainment', 'sports', 'science', 'health'];
 
-  const [cursor, setCursor] = useState<{
-    publishedAt: string;
-    id: string;
-  } | null>(null);
-
+  const cursorRef = useRef<FeedCursor | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const onEndReachedCalledDuringMomentum = useRef(false);
   const skippedItemsRef = useRef<Set<string>>(new Set());
@@ -54,7 +54,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
 
-  const fetchItems = async (isRefresh = false) => {
+  const fetchItems = useCallback(async (isRefresh = false) => {
     try {
       if (isRefresh) {
         setRefreshing(true);
@@ -62,12 +62,12 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
         setLoadingMore(true);
       }
 
-      const params: any = {
+      const params: FeedParams = {
         size: 20,
         ...(selectedCategory && { category: selectedCategory }),
       };
 
-      const effectiveCursor = isRefresh ? null : cursor;
+      const effectiveCursor = isRefresh ? null : cursorRef.current;
 
       if (effectiveCursor) {
         params.publishedAt = effectiveCursor.publishedAt;
@@ -88,7 +88,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
         });
       }
 
-      setCursor(data.nextCursor || null);
+      cursorRef.current = data.nextCursor || null;
       setHasMore(!!data.nextCursor);
     } catch (e) {
       console.log('Fetch error:', e);
@@ -97,16 +97,16 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
       setLoadingMore(false);
       setRefreshing(false);
     }
-  };
+  }, [selectedCategory]);
 
   useEffect(() => {
-    setCursor(null);
+    cursorRef.current = null;
     setItems([]);
     setHasMore(true);
     setInitialLoading(true);
     fetchItems(true);
     onEndReachedCalledDuringMomentum.current = false;
-  }, [selectedCategory]);
+  }, [fetchItems]);
 
   const loadMore = () => {
     if (!loadingMore && hasMore) {
@@ -146,7 +146,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
     }
   };
 
-  const handleSkip = async (item: NewsItem) => {
+  const handleSkip = useCallback(async (item: NewsItem) => {
     if (skippedItemsRef.current.has(item.id)) return;
 
     skippedItemsRef.current.add(item.id);
@@ -159,16 +159,16 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
     } catch (e) {
       console.log('SKIP error:', e);
     }
-  };
+  }, []);
 
   const viewabilityConfig = {
     itemVisiblePercentThreshold: 60,
   };
 
-  const onViewableItemsChanged = useRef(({ changed }) => {
+  const onViewableItemsChanged = useRef(({ changed }: { changed: ViewToken[] }) => {
     changed.forEach((viewable) => {
       if (!viewable.isViewable) {
-        handleSkip(viewable.item);
+        handleSkip(viewable.item as NewsItem);
       }
     });
   });
@@ -246,7 +246,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
           onEndReachedThreshold={0.5}
           refreshing={refreshing}
           onRefresh={() => {
-            setCursor(null);
+            cursorRef.current = null;
             fetchItems(true);
           }}
           contentContainerStyle={styles.listContainer}

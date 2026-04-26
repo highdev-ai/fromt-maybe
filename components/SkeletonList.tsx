@@ -11,7 +11,7 @@ const SkeletonItem = () => {
         Animated.timing(opacity, { toValue: 0.3, duration: 800, useNativeDriver: true }),
       ])
     ).start();
-  }, []);
+  }, [opacity]);
 
   return (
     <Animated.View style={[styles.card, { opacity }]}>

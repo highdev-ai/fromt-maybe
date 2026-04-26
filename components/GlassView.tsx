@@ -1,10 +1,15 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, useColorScheme, Animated } from 'react-native';
+import { StyleProp, StyleSheet, useColorScheme, Animated, ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
 
 const AnimatedBlur = Animated.createAnimatedComponent(BlurView);
 
-const GlassView = ({ children, style, scrollY = 0 }) => {
+type GlassViewProps = React.PropsWithChildren<{
+  style?: StyleProp<ViewStyle>;
+  scrollY?: number;
+}>;
+
+const GlassView: React.FC<GlassViewProps> = ({ children, style, scrollY = 0 }) => {
   const scheme = useColorScheme();
   const blur = useRef(new Animated.Value(30)).current;
 
@@ -15,7 +20,7 @@ const GlassView = ({ children, style, scrollY = 0 }) => {
         Animated.timing(blur, { toValue: 30, duration: 3000, useNativeDriver: false }),
       ])
     ).start();
-  }, []);
+  }, [blur]);
 
   return (
     <AnimatedBlur

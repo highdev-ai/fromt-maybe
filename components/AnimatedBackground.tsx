@@ -4,7 +4,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const AnimatedGradient = Animated.createAnimatedComponent(LinearGradient);
 
-const AnimatedBackground = ({ children }) => {
+type AnimatedBackgroundProps = React.PropsWithChildren;
+
+const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ children }) => {
     const scheme = useColorScheme();
     const anim = useRef(new Animated.Value(0)).current;
 
@@ -15,9 +17,9 @@ const AnimatedBackground = ({ children }) => {
                 Animated.timing(anim, { toValue: 0, duration: 8000, useNativeDriver: false }),
             ])
         ).start();
-    }, []);
+    }, [anim]);
 
-    const colors =
+    const colors: readonly [string, string, string] =
         scheme === 'dark'
             ? ['#0f2027', '#203a43', '#2c5364']
             : ['#e0c3fc', '#8ec5fc', '#f093fb'];

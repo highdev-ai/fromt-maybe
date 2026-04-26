@@ -2,7 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import Constants from 'expo-constants';
 
-const API_BASE_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://192.168.0.100:8080';
+const API_BASE_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://localhost:8080';
+
+type RequestBody = object | unknown[] | string | number | boolean | null;
 
 class ApiService {
   private api: AxiosInstance;
@@ -20,10 +22,7 @@ class ApiService {
     this.api.interceptors.request.use(async (config) => {
         const token = await AsyncStorage.getItem('access_token');
         if (token) {
-          config.headers = {
-            ...config.headers,
-            Authorization: `Bearer ${token}`
-          };
+          config.headers.set('Authorization', `Bearer ${token}`);
         }
         return config;
       },
@@ -51,13 +50,13 @@ class ApiService {
   }
 
   // Generic POST request
-  async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  async post<T>(url: string, data?: RequestBody, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.api.post(url, data, config);
     return response.data;
   }
 
   // Generic PUT request
-  async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  async put<T>(url: string, data?: RequestBody, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.api.put(url, data, config);
     return response.data;
   }

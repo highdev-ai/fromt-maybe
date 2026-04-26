@@ -1,11 +1,8 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { authService } from '../services/auth';
 import AppNavigator from './AppNavigator';
 import AuthNavigator from './AuthNavigator';
-
-const Stack = createNativeStackNavigator();
 
 const RootNavigator: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);

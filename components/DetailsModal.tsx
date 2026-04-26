@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
     Dimensions,
     Modal,
@@ -23,29 +23,37 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import ApiService from '../services/api';
+import { NewsItem } from '../types';
 import GlassView from './GlassView';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const DetailsModal = ({ visible, onClose, item, mode = 'sheet' }) => {
+type DetailsModalProps = {
+  visible: boolean;
+  onClose: () => void;
+  item: NewsItem | null;
+  mode?: 'sheet' | 'floating';
+};
+
+const DetailsModal: React.FC<DetailsModalProps> = ({ visible, onClose, item, mode = 'sheet' }) => {
   const translateY = useSharedValue(SCREEN_HEIGHT);
 
-  const close = () => {
+  const close = useCallback(() => {
     translateY.value = withTiming(SCREEN_HEIGHT, {}, () => {
       runOnJS(onClose)();
     });
-  };
+  }, [onClose, translateY]);
 
-  const open = () => {
+  const open = useCallback(() => {
     translateY.value = withSpring(0, {
         damping: 20,
         stiffness: 180,
     });
-  };
+  }, [translateY]);
 
   useEffect(() => {
     if (visible) open();
-  }, [visible]);
+  }, [open, visible]);
 
   useEffect(() => {
     if (!item) return;
