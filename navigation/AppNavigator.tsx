@@ -1,25 +1,37 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
+import GlassBottomTabBar from '../components/GlassBottomTabBar';
+import LogoutScreen from '../screens/LogoutScreen';
 import MainScreen from '../screens/MainScreen';
-import { NewsItem } from '../types';
+import TestScreen from '../screens/TestScreen';
 
-export type AppStackParamList = {
-  Main: undefined;
-  Details: { item: NewsItem };
+export type AppTabParamList = {
+  Home: undefined;
+  Test1: undefined;
+  Logout: undefined;
 };
 
-const Stack = createNativeStackNavigator<AppStackParamList>();
+type AppNavigatorProps = {
+  setIsAuthenticated: (value: boolean) => void;
+};
 
-const AppNavigator: React.FC = () => {
+const Tab = createBottomTabNavigator<AppTabParamList>();
+
+const AppNavigator: React.FC<AppNavigatorProps> = ({ setIsAuthenticated }) => {
   return (
-    <Stack.Navigator
+    <Tab.Navigator
+      tabBar={(props) => <GlassBottomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: 'transparent' },
+        sceneStyle: { backgroundColor: 'transparent' },
       }}
     >
-      <Stack.Screen name="Main" component={MainScreen} />
-    </Stack.Navigator>
+      <Tab.Screen name="Home" component={MainScreen} options={{ tabBarLabel: 'home' }} />
+      <Tab.Screen name="Test1" component={TestScreen} options={{ tabBarLabel: 'test1' }} />
+      <Tab.Screen name="Logout" options={{ tabBarLabel: 'logout' }}>
+        {() => <LogoutScreen setIsAuthenticated={setIsAuthenticated} />}
+      </Tab.Screen>
+    </Tab.Navigator>
   );
 };
 

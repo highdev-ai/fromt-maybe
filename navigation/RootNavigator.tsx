@@ -25,7 +25,11 @@ const RootNavigator: React.FC = () => {
     return <LoadingSpinner />;
   }
 
-  return isAuthenticated ? <AppNavigator /> : <AuthNavigator setIsAuthenticated={setIsAuthenticated} />;
+  return isAuthenticated ? (
+    <AppNavigator setIsAuthenticated={setIsAuthenticated} />
+  ) : (
+    <AuthNavigator setIsAuthenticated={setIsAuthenticated} />
+  );
 };
 
 export default RootNavigator;
