@@ -28,14 +28,14 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   title: {
-    color: '#1f2933',
+    color: '#263323',
     fontSize: 28,
     fontWeight: '700',
     textAlign: 'center',
     marginBottom: 10,
   },
   text: {
-    color: '#4b5563',
+    color: '#52624c',
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',

@@ -31,8 +31,8 @@ const GlassView: React.FC<GlassViewProps> = ({ children, style, scrollY = 0 }) =
         {
           backgroundColor:
             scheme === 'dark'
-              ? 'rgba(18,24,32,0.38)'
-              : 'rgba(255,255,255,0.32)',
+              ? 'rgba(31,43,27,0.42)'
+              : 'rgba(247,253,235,0.34)',
         },
         style,
       ]}
@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.62)',
-    shadowColor: '#647080',
+    borderColor: 'rgba(250,255,238,0.66)',
+    shadowColor: '#7f9369',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.18,
     shadowRadius: 24,

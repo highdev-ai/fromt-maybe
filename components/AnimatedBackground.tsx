@@ -65,7 +65,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ children }) => 
   return (
     <View style={styles.container}>
       <AnimatedGradient
-        colors={['#f8fafc', '#d9dde3', '#f1f4f7', '#b7bdc7']}
+        colors={['#fbfff5', '#dfead0', '#f4f8e8', '#b8c7a0']}
         locations={[0, 0.34, 0.68, 1]}
         start={{ x: 0.05, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -75,9 +75,9 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ children }) => 
       {children}
 
       <View pointerEvents="none" style={[styles.glassFrame, screenFrameStyle]}>
-        {/* <View style={[styles.chromaticEdge, styles.coolRefraction, innerFrameStyle]} />
-         <View style={[styles.chromaticEdge, styles.warmRefraction, innerFrameStyle]} /> 
-        <View style={[styles.innerHighlight, innerFrameStyle]} />*/}
+        <View style={[styles.chromaticEdge, styles.coolRefraction, innerFrameStyle]} />
+        <View style={[styles.chromaticEdge, styles.warmRefraction, innerFrameStyle]} />
+        <View style={[styles.innerHighlight, innerFrameStyle]} />
       </View>
     </View>
   );
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     overflow: 'hidden',
-    backgroundColor: '#d9dde3',
+    backgroundColor: '#dfead0',
   },
   gradient: {
     ...StyleSheet.absoluteFillObject,
@@ -95,9 +95,9 @@ const styles = StyleSheet.create({
   },
   glassFrame: {
     position: 'absolute',
-    borderColor: 'rgba(255,255,255,0.5)',
-    backgroundColor: 'rgba(255,255,255,0.035)',
-    shadowColor: '#ffffff',
+    borderColor: 'rgba(245,255,229,0.56)',
+    backgroundColor: 'rgba(235,246,212,0.052)',
+    shadowColor: '#f3ffd9',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.78,
     shadowRadius: 28,
@@ -110,21 +110,21 @@ const styles = StyleSheet.create({
   },
   coolRefraction: {
     margin: 5,
-    borderColor: 'rgba(118,220,255,0.62)',
+    borderColor: 'rgba(187,236,162,0.62)',
     transform: [{ translateX: -1 }, { translateY: 1 }],
   },
   warmRefraction: {
     margin: 8,
-    borderColor: 'rgba(255,176,236,0.46)',
+    borderColor: 'rgba(255,230,184,0.42)',
     transform: [{ translateX: 1 }, { translateY: -1 }],
   },
   innerHighlight: {
     flex: 1,
     margin: 10,
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.78)',
-    backgroundColor: 'rgba(255,255,255,0.028)',
-    shadowColor: '#dff7ff',
+    borderColor: 'rgba(249,255,236,0.78)',
+    backgroundColor: 'rgba(241,249,224,0.032)',
+    shadowColor: '#eef9cf',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,
     shadowRadius: 12,

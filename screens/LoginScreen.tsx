@@ -73,7 +73,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, setIsAuthenticate
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor="#7f8794"
+            placeholderTextColor="#8a967e"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -82,7 +82,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, setIsAuthenticate
           <TextInput
             style={styles.input}
             placeholder="Password"
-            placeholderTextColor="#7f8794"
+            placeholderTextColor="#8a967e"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textAlign: 'center',
     marginBottom: 22,
-    color: '#1f2933',
+    color: '#263323',
   },
   input: {
     height: 50,
@@ -127,11 +127,11 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 15,
     marginBottom: 15,
-    backgroundColor: 'rgba(255,255,255,0.34)',
-    color: '#202936',
+    backgroundColor: 'rgba(247,253,235,0.36)',
+    color: '#263323',
   },
   button: {
-    backgroundColor: 'rgba(50,64,82,0.78)',
+    backgroundColor: 'rgba(105,132,84,0.76)',
     height: 50,
     borderRadius: 14,
     justifyContent: 'center',
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   link: {
-    color: '#344054',
+    color: '#42513d',
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '600',

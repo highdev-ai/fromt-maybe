@@ -18,9 +18,9 @@ const SkeletonItem = () => {
   return (
     <GlassView style={styles.card}>
       <Animated.View style={{ opacity }}>
-      <View style={styles.title} />
-      <View style={styles.text} />
-      <View style={styles.textShort} />
+        <View style={styles.title} />
+        <View style={styles.text} />
+        <View style={styles.textShort} />
       </Animated.View>
     </GlassView>
   );
@@ -51,21 +51,21 @@ const styles = StyleSheet.create({
   title: {
     height: 20,
     width: '60%',
-    backgroundColor: 'rgba(255,255,255,0.46)',
+    backgroundColor: 'rgba(247,253,235,0.48)',
     marginBottom: 10,
     borderRadius: 6,
   },
   text: {
     height: 14,
     width: '90%',
-    backgroundColor: 'rgba(255,255,255,0.34)',
+    backgroundColor: 'rgba(247,253,235,0.36)',
     marginBottom: 6,
     borderRadius: 6,
   },
   textShort: {
     height: 14,
     width: '70%',
-    backgroundColor: 'rgba(255,255,255,0.34)',
+    backgroundColor: 'rgba(247,253,235,0.36)',
     borderRadius: 6,
   },
 });

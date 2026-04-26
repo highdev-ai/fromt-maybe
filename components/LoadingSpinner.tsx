@@ -8,7 +8,7 @@ const LoadingSpinner: React.FC = () => {
     <AnimatedBackground>
       <View style={styles.container}>
         <GlassView style={styles.panel}>
-          <ActivityIndicator size="large" color="#344054" />
+          <ActivityIndicator size="large" color="#6c7f39" />
         </GlassView>
       </View>
     </AnimatedBackground>

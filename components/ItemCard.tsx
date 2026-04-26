@@ -17,10 +17,10 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, onLike, onPress, scrollY }) =
 
   return (
     <GlassView style={styles.card} scrollY={scrollY}>
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity style={styles.touchArea} onPress={onPress}>
         <Text style={styles.title}>{item.title}</Text>
 
-        <Text style={styles.content} numberOfLines={2}>
+        <Text style={styles.content} numberOfLines={6}>
           {truncatedContent}
         </Text>
 
@@ -40,30 +40,34 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, onLike, onPress, scrollY }) =
 
 const styles = StyleSheet.create({
   card: {
-    padding: 16,
-    marginBottom: 14,
-    borderRadius: 20,
+    minHeight: 220,
+    padding: 20,
+    marginBottom: 16,
+    borderRadius: 24,
+  },
+  touchArea: {
+    flex: 1,
   },
   title: {
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 8,
-    color: '#1f2933',
+    color: '#263323',
   },
   content: {
     fontSize: 14,
-    color: '#4b5563',
-    lineHeight: 20,
+    color: '#52624c',
+    lineHeight: 22,
   },
   footer: {
-    marginTop: 12,
+    marginTop: 'auto',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   category: {
     fontSize: 12,
-    color: '#667085',
+    color: '#71806b',
     fontWeight: '600',
     textTransform: 'uppercase',
   },
@@ -75,15 +79,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.54)',
-    backgroundColor: 'rgba(255,255,255,0.28)',
+    backgroundColor: 'rgba(246,252,239,0.34)',
   },
   likeText: {
-    color: '#667085',
+    color: '#71806b',
     fontSize: 12,
     fontWeight: '700',
   },
   likeTextActive: {
-    color: '#9f1239',
+    color: '#6c7f39',
   },
 });
 

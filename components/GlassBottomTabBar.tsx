@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255,255,255,0.28)',
+    backgroundColor: 'rgba(247,253,235,0.32)',
   },
   tab: {
     flex: 1,
@@ -75,11 +75,11 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   tabActive: {
-    backgroundColor: 'rgba(50,64,82,0.78)',
-    borderColor: 'rgba(255,255,255,0.66)',
+    backgroundColor: 'rgba(105,132,84,0.74)',
+    borderColor: 'rgba(250,255,238,0.7)',
   },
   label: {
-    color: '#344054',
+    color: '#42513d',
     fontSize: 14,
     fontWeight: '700',
   },

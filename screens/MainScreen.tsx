@@ -1,13 +1,16 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   FlatList,
+  LayoutChangeEvent,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   ViewToken,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AnimatedBackground from '../components/AnimatedBackground';
 import DetailsModal from '../components/DetailsModal';
 import EmptyState from '../components/EmptyState';
@@ -16,6 +19,9 @@ import ItemCard from '../components/ItemCard';
 import SkeletonList from '../components/SkeletonList';
 import ApiService from '../services/api';
 import { FeedCursor, FeedResponse, NewsItem } from '../types';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const CATEGORY_PULL_LIMIT = SCREEN_HEIGHT * 0.3;
 
 const categoryLabels: Record<string, string> = {
   all: 'All',
@@ -38,6 +44,7 @@ type FeedParams = {
 };
 
 const MainScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const [items, setItems] = useState<NewsItem[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -53,6 +60,42 @@ const MainScreen: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<NewsItem | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const headerTopOffset = Math.max(insets.top + 12, 28);
+  const selectedCategoryKey = selectedCategory || 'all';
+  const categoriesScrollRef = useRef<ScrollView | null>(null);
+  const categoryLayoutsRef = useRef<Record<string, { x: number; width: number }>>({});
+  const headerPullCorrection = Math.max(0, -scrollY - CATEGORY_PULL_LIMIT);
+  const glassScrollY = Math.max(0, scrollY);
+
+  const headerStyle = useMemo(
+    () => [
+      styles.header,
+      {
+        marginTop: headerTopOffset,
+        transform: [{ translateY: -headerPullCorrection }],
+      },
+    ],
+    [headerPullCorrection, headerTopOffset]
+  );
+
+  const scrollToSelectedCategory = useCallback(() => {
+    const layout = categoryLayoutsRef.current[selectedCategoryKey];
+    if (!layout) return;
+
+    categoriesScrollRef.current?.scrollTo({
+      x: Math.max(0, layout.x - 24),
+      animated: true,
+    });
+  }, [selectedCategoryKey]);
+
+  const handleCategoryLayout = useCallback((category: string, event: LayoutChangeEvent) => {
+    const { x, width } = event.nativeEvent.layout;
+    categoryLayoutsRef.current[category] = { x, width };
+
+    if (category === selectedCategoryKey) {
+      requestAnimationFrame(scrollToSelectedCategory);
+    }
+  }, [scrollToSelectedCategory, selectedCategoryKey]);
 
   const fetchItems = useCallback(async (isRefresh = false) => {
     try {
@@ -107,11 +150,21 @@ const MainScreen: React.FC = () => {
     onEndReachedCalledDuringMomentum.current = false;
   }, [fetchItems]);
 
+  useEffect(() => {
+    requestAnimationFrame(scrollToSelectedCategory);
+  }, [scrollToSelectedCategory]);
+
   const loadMore = () => {
     if (!loadingMore && hasMore) {
       fetchItems(false);
     }
   };
+
+  const handleRefresh = useCallback(() => {
+    cursorRef.current = null;
+    scrollToSelectedCategory();
+    fetchItems(true);
+  }, [fetchItems, scrollToSelectedCategory]);
 
   const handleItemPress = (item: NewsItem) => {
     setSelectedItem(item);
@@ -175,13 +228,14 @@ const MainScreen: React.FC = () => {
       item={item}
       onPress={() => handleItemPress(item)}
       onLike={() => handleLike(item)}
-      scrollY={scrollY}
+      scrollY={glassScrollY}
     />
   );
 
   const renderHeader = () => (
-    <GlassView style={styles.header} scrollY={scrollY}>
+    <GlassView style={headerStyle} scrollY={glassScrollY}>
       <ScrollView
+        ref={categoriesScrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.categoriesContainer}
@@ -194,6 +248,7 @@ const MainScreen: React.FC = () => {
           return (
             <TouchableOpacity
               key={cat}
+              onLayout={(event) => handleCategoryLayout(cat, event)}
               onPress={() => setSelectedCategory(cat === 'all' ? null : cat)}
               style={[
                 styles.categoryButton,
@@ -240,11 +295,9 @@ const MainScreen: React.FC = () => {
           onEndReachedCalledDuringMomentum.current = false;
         }}
         onEndReachedThreshold={0.5}
+        progressViewOffset={headerTopOffset}
         refreshing={refreshing}
-        onRefresh={() => {
-          cursorRef.current = null;
-          fetchItems(true);
-        }}
+        onRefresh={handleRefresh}
         contentContainerStyle={styles.listContainer}
         onViewableItemsChanged={onViewableItemsChanged.current}
         onScroll={(e) => {
@@ -253,12 +306,13 @@ const MainScreen: React.FC = () => {
         scrollEventThrottle={16}
         viewabilityConfig={viewabilityConfig}
         ListFooterComponent={
-          loadingMore ? <ActivityIndicator color="#344054" style={styles.footerLoader} /> : null
+          loadingMore ? <ActivityIndicator color="#6c7f39" style={styles.footerLoader} /> : null
         }
       />
       <DetailsModal
         visible={modalVisible}
         item={selectedItem}
+        mode="floating"
         onClose={() => setModalVisible(false)}
       />
     </AnimatedBackground>
@@ -267,8 +321,7 @@ const MainScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   header: {
-    marginHorizontal: 20,
-    marginTop: 16,
+    marginHorizontal: 16,
     marginBottom: 14,
     paddingVertical: 10,
     borderRadius: 22,
@@ -277,9 +330,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   listContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 120,
-    paddingTop: 50,
+    paddingTop: 8,
   },
   categoriesContainer: {
     paddingHorizontal: 10,
@@ -294,7 +347,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   categoryActive: {
-    backgroundColor: 'rgba(50,64,82,0.78)',
+    backgroundColor: 'rgba(96,128,82,0.72)',
     borderColor: 'rgba(255,255,255,0.62)',
   },
   categoryInactive: {
@@ -309,7 +362,7 @@ const styles = StyleSheet.create({
     color: '#f8fafc',
   },
   categoryTextInactive: {
-    color: '#344054',
+    color: '#42513d',
   },
   footerLoader: {
     margin: 16,

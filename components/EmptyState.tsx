@@ -37,13 +37,13 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 18,
-    color: '#344054',
+    color: '#42513d',
     textAlign: 'center',
     marginBottom: 20,
     fontWeight: '600',
   },
   button: {
-    backgroundColor: 'rgba(50,64,82,0.78)',
+    backgroundColor: 'rgba(105,132,84,0.76)',
     paddingHorizontal: 22,
     paddingVertical: 12,
     borderRadius: 14,

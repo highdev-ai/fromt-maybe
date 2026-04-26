@@ -1,25 +1,27 @@
 import React, { useCallback, useEffect } from 'react';
 import {
-    Dimensions,
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Dimensions,
+  Linking,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import {
-    Gesture,
-    GestureDetector,
+  Gesture,
+  GestureDetector,
 } from 'react-native-gesture-handler';
 
 import Animated, {
-    Easing,
-    runOnJS,
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  Easing,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
 
 import ApiService from '../services/api';
@@ -42,7 +44,7 @@ type DetailsModalProps = {
   mode?: 'sheet' | 'floating';
 };
 
-const DetailsModal: React.FC<DetailsModalProps> = ({ visible, onClose, item, mode = 'sheet' }) => {
+const DetailsModal: React.FC<DetailsModalProps> = ({ visible, onClose, item, mode = 'floating' }) => {
   const translateY = useSharedValue(SCREEN_HEIGHT);
   const gestureStartY = useSharedValue(0);
 
@@ -70,6 +72,16 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ visible, onClose, item, mod
   }, [item]);
 
   // 🔥 НОВИЙ gesture API
+  const openSource = useCallback(async () => {
+    if (!item?.url) return;
+
+    try {
+      await Linking.openURL(item.url);
+    } catch (e) {
+      console.log('Open source error:', e);
+    }
+  }, [item?.url]);
+
   const gesture = Gesture.Pan()
     .onStart(() => {
       gestureStartY.value = translateY.value;
@@ -112,16 +124,22 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ visible, onClose, item, mod
             <View style={styles.handle} />
 
             {mode === 'sheet' ? (
-              <>
+              <View style={styles.contentStack}>
                 <Text style={styles.title}>{item.title}</Text>
                 <Text numberOfLines={12} style={styles.content}>
                   {item.content}
                 </Text>
-              </>
+                <TouchableOpacity style={styles.sourceButton} onPress={openSource} disabled={!item.url}>
+                  <Text style={styles.sourceButtonText}>Open full article</Text>
+                </TouchableOpacity>
+              </View>
             ) : (
-              <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 <Text style={styles.title}>{item.title}</Text>
                 <Text style={styles.content}>{item.content}</Text>
+                <TouchableOpacity style={styles.sourceButton} onPress={openSource} disabled={!item.url}>
+                  <Text style={styles.sourceButtonText}>Open full article</Text>
+                </TouchableOpacity>
               </ScrollView>
             )}
           </GlassView>
@@ -137,42 +155,67 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(39,55,33,0.34)',
   },
   sheet: {
     position: 'absolute',
     bottom: 0,
-    width: '100%',
+    left: 16,
+    right: 16,
     height: SCREEN_HEIGHT * 0.6,
   },
   floating: {
     position: 'absolute',
-    top: '15%',
+    top: '20%',
+    bottom: '20%',
     left: 16,
     right: 16,
-    maxHeight: '65%',
   },
   modal: {
     flex: 1,
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 28,
+    padding: 22,
   },
   handle: {
     width: 40,
     height: 5,
-    backgroundColor: '#aaa',
+    backgroundColor: 'rgba(112,128,90,0.48)',
     alignSelf: 'center',
     borderRadius: 3,
     marginBottom: 10,
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    fontWeight: '700',
+    marginBottom: 12,
+    textAlign: 'center',
+    color: '#263323',
   },
   content: {
     fontSize: 15,
     lineHeight: 22,
+    color: '#52624c',
+  },
+  contentStack: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 4,
+  },
+  sourceButton: {
+    minHeight: 48,
+    marginTop: 18,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.62)',
+    backgroundColor: 'rgba(246,252,239,0.3)',
+  },
+  sourceButtonText: {
+    color: '#42513d',
+    fontSize: 15,
+    fontWeight: '700',
   },
 });
 
