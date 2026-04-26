@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { authService } from '../services/auth';
 import AppNavigator from './AppNavigator';
 import AuthNavigator from './AuthNavigator';
@@ -21,13 +21,8 @@ const RootNavigator: React.FC = () => {
     checkAuth();
   }, []);
 
-  // Show loading while checking auth
   if (isAuthenticated === null) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <LoadingSpinner />;
   }
 
   return isAuthenticated ? <AppNavigator /> : <AuthNavigator setIsAuthenticated={setIsAuthenticated} />;

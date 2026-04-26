@@ -27,9 +27,9 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, onLike, onPress, scrollY }) =
         <View style={styles.footer}>
           <Text style={styles.category}>{item.category}</Text>
 
-          <TouchableOpacity onPress={onLike}>
-            <Text style={{ color: item.liked ? 'red' : 'gray', fontSize: 18 }}>
-              ♥
+          <TouchableOpacity style={styles.likeButton} onPress={onLike}>
+            <Text style={[styles.likeText, item.liked && styles.likeTextActive]}>
+              {item.liked ? 'Love' : 'Like'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -40,28 +40,50 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, onLike, onPress, scrollY }) =
 
 const styles = StyleSheet.create({
   card: {
-    padding: 15,
-    marginBottom: 12,
-    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
+    borderRadius: 20,
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginBottom: 8,
-    color: '#333',
+    color: '#1f2933',
   },
   content: {
     fontSize: 14,
-    color: '#666',
+    color: '#4b5563',
+    lineHeight: 20,
   },
   footer: {
-    marginTop: 10,
+    marginTop: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   category: {
     fontSize: 12,
-    color: '#999',
+    color: '#667085',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  likeButton: {
+    minWidth: 58,
+    minHeight: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.54)',
+    backgroundColor: 'rgba(255,255,255,0.28)',
+  },
+  likeText: {
+    color: '#667085',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  likeTextActive: {
+    color: '#9f1239',
   },
 });
 

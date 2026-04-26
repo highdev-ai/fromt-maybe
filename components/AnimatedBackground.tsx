@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, Animated, useColorScheme } from 'react-native';
+import { StyleSheet, Animated, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const AnimatedGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -7,7 +7,6 @@ const AnimatedGradient = Animated.createAnimatedComponent(LinearGradient);
 type AnimatedBackgroundProps = React.PropsWithChildren;
 
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ children }) => {
-    const scheme = useColorScheme();
     const anim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -19,32 +18,64 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ children }) => 
         ).start();
     }, [anim]);
 
-    const colors: readonly [string, string, string] =
-        scheme === 'dark'
-            ? ['#0f2027', '#203a43', '#2c5364']
-            : ['#e0c3fc', '#8ec5fc', '#f093fb'];
+    const translateY = anim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, -36],
+    });
 
     return (
-        <AnimatedGradient colors={colors} style={[
-            styles.container,
-            {
-                transform: [
-                    {
-                        translateY: anim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, -50],
-                        }),
-                    },
-                ],
-            },
-        ]}>
+        <View style={styles.container}>
+            <AnimatedGradient
+                colors={['#f8fafc', '#d9dde3', '#f1f4f7', '#b7bdc7']}
+                locations={[0, 0.34, 0.68, 1]}
+                start={{ x: 0.05, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[styles.gradient, { transform: [{ translateY }] }]}
+            />
+            <View style={[styles.cornerGlass, styles.topLeft]} />
+            <View style={[styles.cornerGlass, styles.topRight]} />
+            <View style={[styles.cornerGlass, styles.bottomLeft]} />
+            <View style={[styles.cornerGlass, styles.bottomRight]} />
             {children}
-        </AnimatedGradient>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
+    container: {
+        flex: 1,
+        overflow: 'hidden',
+        backgroundColor: '#d9dde3',
+    },
+    gradient: {
+        ...StyleSheet.absoluteFillObject,
+        height: '112%',
+    },
+    cornerGlass: {
+        position: 'absolute',
+        width: 148,
+        height: 148,
+        borderRadius: 34,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.58)',
+        backgroundColor: 'rgba(255,255,255,0.16)',
+    },
+    topLeft: {
+        top: -74,
+        left: -74,
+    },
+    topRight: {
+        top: -76,
+        right: -76,
+    },
+    bottomLeft: {
+        bottom: -78,
+        left: -78,
+    },
+    bottomRight: {
+        right: -82,
+        bottom: -82,
+    },
 });
 
 export default AnimatedBackground;

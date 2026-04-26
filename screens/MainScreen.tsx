@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  ViewToken
+  ViewToken,
 } from 'react-native';
 import AnimatedBackground from '../components/AnimatedBackground';
 import DetailsModal from '../components/DetailsModal';
@@ -17,17 +17,17 @@ import SkeletonList from '../components/SkeletonList';
 import ApiService from '../services/api';
 import { FeedCursor, FeedResponse, NewsItem } from '../types';
 
-const categoryIcons: Record<string, string> = {
-  all: '🔥',
-  general: '📰',
-  world: '🌍',
-  nation: '🏛',
-  business: '💼',
-  technology: '💻',
-  entertainment: '🎬',
-  sports: '⚽',
-  science: '🔬',
-  health: '🏥',
+const categoryLabels: Record<string, string> = {
+  all: 'All',
+  general: 'General',
+  world: 'World',
+  nation: 'Nation',
+  business: 'Business',
+  technology: 'Technology',
+  entertainment: 'Entertainment',
+  sports: 'Sports',
+  science: 'Science',
+  health: 'Health',
 };
 
 type FeedParams = {
@@ -75,7 +75,6 @@ const MainScreen: React.FC = () => {
       }
 
       const data = await ApiService.get<FeedResponse>('/api/feed', { params });
-
       const newItems = data.items;
 
       if (isRefresh) {
@@ -122,7 +121,6 @@ const MainScreen: React.FC = () => {
   const handleLike = async (item: NewsItem) => {
     const newLiked = !item.liked;
 
-    // optimistic update
     setItems(prev =>
       prev.map(i =>
         i.id === item.id ? { ...i, liked: newLiked } : i
@@ -137,7 +135,6 @@ const MainScreen: React.FC = () => {
     } catch (e) {
       console.log('LIKE error:', e);
 
-      // rollback якщо треба
       setItems(prev =>
         prev.map(i =>
           i.id === item.id ? { ...i, liked: item.liked } : i
@@ -184,7 +181,6 @@ const MainScreen: React.FC = () => {
 
   const renderHeader = () => (
     <GlassView style={styles.header} scrollY={scrollY}>
-
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -210,7 +206,7 @@ const MainScreen: React.FC = () => {
                   isActive ? styles.categoryTextActive : styles.categoryTextInactive,
                 ]}
               >
-                {categoryIcons[cat]} {cat}
+                {categoryLabels[cat]}
               </Text>
             </TouchableOpacity>
           );
@@ -227,91 +223,95 @@ const MainScreen: React.FC = () => {
 
   return (
     <AnimatedBackground>
-      <>
-        <FlatList
-          data={items}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={renderItem}
-          ListHeaderComponent={renderHeader}
-          stickyHeaderIndices={[0]}
-          onEndReached={() => {
-            if (!onEndReachedCalledDuringMomentum.current) {
-              loadMore();
-              onEndReachedCalledDuringMomentum.current = true;
-            }
-          }}
-          onMomentumScrollBegin={() => {
-            onEndReachedCalledDuringMomentum.current = false;
-          }}
-          onEndReachedThreshold={0.5}
-          refreshing={refreshing}
-          onRefresh={() => {
-            cursorRef.current = null;
-            fetchItems(true);
-          }}
-          contentContainerStyle={styles.listContainer}
-          onViewableItemsChanged={onViewableItemsChanged.current}
-          onScroll={(e) => {
-            setScrollY(e.nativeEvent.contentOffset.y);
-          }}
-          scrollEventThrottle={16}
-          viewabilityConfig={viewabilityConfig}
-          ListFooterComponent={
-            loadingMore ? <ActivityIndicator style={{ margin: 16 }} /> : null
+      <FlatList
+        data={items}
+        style={styles.list}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={renderItem}
+        ListHeaderComponent={renderHeader}
+        stickyHeaderIndices={[0]}
+        onEndReached={() => {
+          if (!onEndReachedCalledDuringMomentum.current) {
+            loadMore();
+            onEndReachedCalledDuringMomentum.current = true;
           }
-        />
-        <DetailsModal
-          visible={modalVisible}
-          item={selectedItem}
-          onClose={() => setModalVisible(false)}
-        />
-      </>
+        }}
+        onMomentumScrollBegin={() => {
+          onEndReachedCalledDuringMomentum.current = false;
+        }}
+        onEndReachedThreshold={0.5}
+        refreshing={refreshing}
+        onRefresh={() => {
+          cursorRef.current = null;
+          fetchItems(true);
+        }}
+        contentContainerStyle={styles.listContainer}
+        onViewableItemsChanged={onViewableItemsChanged.current}
+        onScroll={(e) => {
+          setScrollY(e.nativeEvent.contentOffset.y);
+        }}
+        scrollEventThrottle={16}
+        viewabilityConfig={viewabilityConfig}
+        ListFooterComponent={
+          loadingMore ? <ActivityIndicator color="#344054" style={styles.footerLoader} /> : null
+        }
+      />
+      <DetailsModal
+        visible={modalVisible}
+        item={selectedItem}
+        onClose={() => setModalVisible(false)}
+      />
     </AnimatedBackground>
   );
 };
 
 const styles = StyleSheet.create({
   header: {
-    marginHorizontal: 10,
-    marginTop: 10,
-    padding: 10,
-    borderRadius: 20,
+    marginHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 14,
+    paddingVertical: 10,
+    borderRadius: 22,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 10,
+  list: {
+    backgroundColor: 'transparent',
   },
   listContainer: {
     paddingHorizontal: 20,
+    paddingBottom: 28,
   },
   categoriesContainer: {
     paddingHorizontal: 10,
-    paddingBottom: 10,
   },
   categoryButton: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     marginRight: 8,
-    borderRadius: 20,
+    borderRadius: 18,
     flexDirection: 'row',
     alignItems: 'center',
+    borderWidth: 1,
   },
   categoryActive: {
-    backgroundColor: '#007bff',
+    backgroundColor: 'rgba(50,64,82,0.78)',
+    borderColor: 'rgba(255,255,255,0.62)',
   },
   categoryInactive: {
-    backgroundColor: '#e0e0e0',
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    borderColor: 'rgba(255,255,255,0.48)',
   },
   categoryText: {
     fontSize: 14,
+    fontWeight: '700',
   },
   categoryTextActive: {
-    color: '#fff',
+    color: '#f8fafc',
   },
   categoryTextInactive: {
-    color: '#333',
+    color: '#344054',
+  },
+  footerLoader: {
+    margin: 16,
   },
 });
 

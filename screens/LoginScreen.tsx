@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import {
-  View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import AnimatedBackground from '../components/AnimatedBackground';
+import GlassView from '../components/GlassView';
 import { authService } from '../services/auth';
 import { LoginData } from '../types';
 
@@ -60,34 +63,43 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, setIsAuthenticate
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Login</Text>
-        )}
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.link}>Don&apos;t have an account? Register</Text>
-      </TouchableOpacity>
-    </View>
+    <AnimatedBackground>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.container}
+      >
+        <GlassView style={styles.panel}>
+          <Text style={styles.title}>Login</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="#7f8794"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#7f8794"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+            {loading ? (
+              <ActivityIndicator color="#f8fafc" />
+            ) : (
+              <Text style={styles.buttonText}>Login</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.link}>Don&apos;t have an account? Register</Text>
+          </TouchableOpacity>
+        </GlassView>
+      </KeyboardAvoidingView>
+    </AnimatedBackground>
   );
 };
 
@@ -95,41 +107,49 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#f5f5f5',
+    padding: 22,
+  },
+  panel: {
+    padding: 22,
+    borderRadius: 24,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 22,
+    color: '#1f2933',
   },
   input: {
     height: 50,
-    borderColor: '#ddd',
+    borderColor: 'rgba(255,255,255,0.72)',
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 14,
     paddingHorizontal: 15,
     marginBottom: 15,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.34)',
+    color: '#202936',
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: 'rgba(50,64,82,0.78)',
     height: 50,
-    borderRadius: 8,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.5)',
   },
   buttonText: {
-    color: '#fff',
+    color: '#f8fafc',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   link: {
-    color: '#007bff',
+    color: '#344054',
     textAlign: 'center',
     fontSize: 16,
+    fontWeight: '600',
   },
 });
 

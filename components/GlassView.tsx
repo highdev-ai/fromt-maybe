@@ -24,15 +24,15 @@ const GlassView: React.FC<GlassViewProps> = ({ children, style, scrollY = 0 }) =
 
   return (
     <AnimatedBlur
-      intensity={Math.min(80, 30 + scrollY / 5)}
-      tint={scheme === 'dark' ? 'dark' : 'light'}
+      intensity={Math.min(72, 42 + scrollY / 8)}
+      tint={scheme === 'dark' ? 'dark' : 'extraLight'}
       style={[
         styles.container,
         {
           backgroundColor:
             scheme === 'dark'
-              ? 'rgba(0,0,0,0.3)'
-              : 'rgba(255,255,255,0.2)',
+              ? 'rgba(18,24,32,0.38)'
+              : 'rgba(255,255,255,0.32)',
         },
         style,
       ]}
@@ -47,7 +47,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: 'rgba(255,255,255,0.62)',
+    shadowColor: '#647080',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    elevation: 8,
   },
 });
 

@@ -1,11 +1,17 @@
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import AnimatedBackground from './AnimatedBackground';
+import GlassView from './GlassView';
 
 const LoadingSpinner: React.FC = () => {
   return (
-    <View style={styles.container}>
-      <ActivityIndicator size="large" color="#007bff" />
-    </View>
+    <AnimatedBackground>
+      <View style={styles.container}>
+        <GlassView style={styles.panel}>
+          <ActivityIndicator size="large" color="#344054" />
+        </GlassView>
+      </View>
+    </AnimatedBackground>
   );
 };
 
@@ -14,7 +20,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+  },
+  panel: {
+    width: 88,
+    height: 88,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import AnimatedBackground from './AnimatedBackground';
+import GlassView from './GlassView';
 
 interface EmptyStateProps {
   onRefresh: () => void;
@@ -7,12 +9,16 @@ interface EmptyStateProps {
 
 const EmptyState: React.FC<EmptyStateProps> = ({ onRefresh }) => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.message}>No items found</Text>
-      <TouchableOpacity style={styles.button} onPress={onRefresh}>
-        <Text style={styles.buttonText}>Refresh</Text>
-      </TouchableOpacity>
-    </View>
+    <AnimatedBackground>
+      <View style={styles.container}>
+        <GlassView style={styles.panel}>
+          <Text style={styles.message}>No items found</Text>
+          <TouchableOpacity style={styles.button} onPress={onRefresh}>
+            <Text style={styles.buttonText}>Refresh</Text>
+          </TouchableOpacity>
+        </GlassView>
+      </View>
+    </AnimatedBackground>
   );
 };
 
@@ -21,24 +27,33 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
     padding: 20,
+  },
+  panel: {
+    width: '100%',
+    padding: 24,
+    borderRadius: 24,
+    alignItems: 'center',
   },
   message: {
     fontSize: 18,
-    color: '#666',
+    color: '#344054',
     textAlign: 'center',
     marginBottom: 20,
+    fontWeight: '600',
   },
   button: {
-    backgroundColor: '#007bff',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
+    backgroundColor: 'rgba(50,64,82,0.78)',
+    paddingHorizontal: 22,
+    paddingVertical: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.5)',
   },
   buttonText: {
-    color: '#fff',
+    color: '#f8fafc',
     fontSize: 16,
+    fontWeight: '700',
   },
 });
 

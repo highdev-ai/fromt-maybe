@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
+import AnimatedBackground from './AnimatedBackground';
+import GlassView from './GlassView';
 
 const SkeletonItem = () => {
   const opacity = useRef(new Animated.Value(0.3)).current;
@@ -14,49 +16,56 @@ const SkeletonItem = () => {
   }, [opacity]);
 
   return (
-    <Animated.View style={[styles.card, { opacity }]}>
+    <GlassView style={styles.card}>
+      <Animated.View style={{ opacity }}>
       <View style={styles.title} />
       <View style={styles.text} />
       <View style={styles.textShort} />
-    </Animated.View>
+      </Animated.View>
+    </GlassView>
   );
 };
 
 const SkeletonList = () => {
   return (
-    <View style={{ padding: 16 }}>
-      {[...Array(5)].map((_, i) => (
-        <SkeletonItem key={i} />
-      ))}
-    </View>
+    <AnimatedBackground>
+      <View style={styles.container}>
+        {[...Array(5)].map((_, i) => (
+          <SkeletonItem key={i} />
+        ))}
+      </View>
+    </AnimatedBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    paddingTop: 24,
+  },
   card: {
     marginBottom: 16,
     padding: 16,
-    borderRadius: 16,
-    backgroundColor: '#e0e0e0',
+    borderRadius: 20,
   },
   title: {
     height: 20,
     width: '60%',
-    backgroundColor: '#ccc',
+    backgroundColor: 'rgba(255,255,255,0.46)',
     marginBottom: 10,
     borderRadius: 6,
   },
   text: {
     height: 14,
     width: '90%',
-    backgroundColor: '#ddd',
+    backgroundColor: 'rgba(255,255,255,0.34)',
     marginBottom: 6,
     borderRadius: 6,
   },
   textShort: {
     height: 14,
     width: '70%',
-    backgroundColor: '#ddd',
+    backgroundColor: 'rgba(255,255,255,0.34)',
     borderRadius: 6,
   },
 });

@@ -12,7 +12,12 @@ const Stack = createNativeStackNavigator<AppStackParamList>();
 
 const AppNavigator: React.FC = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: 'transparent' },
+      }}
+    >
       <Stack.Screen name="Main" component={MainScreen} />
     </Stack.Navigator>
   );
