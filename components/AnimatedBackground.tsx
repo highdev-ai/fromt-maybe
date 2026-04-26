@@ -1,134 +1,48 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useMemo, useRef } from 'react';
-import { Animated, StyleSheet, View, ViewStyle } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet } from 'react-native';
 
 const AnimatedGradient = Animated.createAnimatedComponent(LinearGradient);
 
-type AnimatedBackgroundProps = React.PropsWithChildren;
-
-const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ children }) => {
-  const insets = useSafeAreaInsets();
+const AnimatedBackground = ({ children }: any) => {
   const anim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.loop(
-      Animated.sequence([
-        Animated.timing(anim, { toValue: 1, duration: 8000, useNativeDriver: false }),
-        Animated.timing(anim, { toValue: 0, duration: 8000, useNativeDriver: false }),
-      ])
+      Animated.timing(anim, {
+        toValue: 1,
+        duration: 8000,
+        useNativeDriver: false,
+      })
     ).start();
-  }, [anim]);
+  }, []);
 
-  const translateY = anim.interpolate({
+  const startY = anim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -36],
+    outputRange: [0, 0.5],
   });
 
-  const screenFrameStyle = useMemo<ViewStyle>(() => {
-    const hasNotch = insets.top >= 40;
-    const topGlassWidth = hasNotch ? Math.min(42, Math.max(28, insets.top * 0.72)) : 18;
-    const sideGlassWidth = hasNotch ? 16 : 14;
-    const bottomGlassWidth = insets.bottom > 12 ? 22 : 16;
-    const topRadius = hasNotch ? 58 : 40;
-    const bottomRadius = insets.bottom > 12 ? 50 : 38;
-
-    return {
-      top: hasNotch ? 2 : 4,
-      right: 3,
-      bottom: insets.bottom > 12 ? 3 : 4,
-      left: 3,
-      borderTopWidth: topGlassWidth,
-      borderRightWidth: sideGlassWidth,
-      borderBottomWidth: bottomGlassWidth,
-      borderLeftWidth: sideGlassWidth,
-      borderTopLeftRadius: topRadius,
-      borderTopRightRadius: topRadius,
-      borderBottomLeftRadius: bottomRadius,
-      borderBottomRightRadius: bottomRadius,
-    };
-  }, [insets.bottom, insets.top]);
-
-  const innerFrameStyle = useMemo<ViewStyle>(() => {
-    const hasNotch = insets.top >= 40;
-    const topRadius = hasNotch ? 42 : 28;
-    const bottomRadius = insets.bottom > 12 ? 34 : 26;
-
-    return {
-      borderTopLeftRadius: topRadius,
-      borderTopRightRadius: topRadius,
-      borderBottomLeftRadius: bottomRadius,
-      borderBottomRightRadius: bottomRadius,
-    };
-  }, [insets.bottom, insets.top]);
+  const endY = anim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 0.5],
+  });
 
   return (
-    <View style={styles.container}>
+    <>
       <AnimatedGradient
-        colors={['#fbfff5', '#dfead0', '#f4f8e8', '#b8c7a0']}
-        locations={[0, 0.34, 0.68, 1]}
-        start={{ x: 0.05, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.gradient, { transform: [{ translateY }] }]}
+        colors={[
+          '#d2e6c8',
+          '#b4d2be',
+          '#a0c8aa',
+          '#d2e6c8',
+        ]}
+        start={{ x: 0, y: startY }}
+        end={{ x: 1, y: endY }}
+        style={StyleSheet.absoluteFill}
       />
-
       {children}
-
-      <View pointerEvents="none" style={[styles.glassFrame, screenFrameStyle]}>
-        <View style={[styles.chromaticEdge, styles.coolRefraction, innerFrameStyle]} />
-        <View style={[styles.chromaticEdge, styles.warmRefraction, innerFrameStyle]} />
-        <View style={[styles.innerHighlight, innerFrameStyle]} />
-      </View>
-    </View>
+    </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    overflow: 'hidden',
-    backgroundColor: '#dfead0',
-  },
-  gradient: {
-    ...StyleSheet.absoluteFillObject,
-    height: '112%',
-  },
-  glassFrame: {
-    position: 'absolute',
-    borderColor: 'rgba(245,255,229,0.56)',
-    backgroundColor: 'rgba(235,246,212,0.052)',
-    shadowColor: '#f3ffd9',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.78,
-    shadowRadius: 28,
-    elevation: 12,
-  },
-  chromaticEdge: {
-    ...StyleSheet.absoluteFillObject,
-    borderWidth: 1,
-    opacity: 0.55,
-  },
-  coolRefraction: {
-    margin: 5,
-    borderColor: 'rgba(187,236,162,0.62)',
-    transform: [{ translateX: -1 }, { translateY: 1 }],
-  },
-  warmRefraction: {
-    margin: 8,
-    borderColor: 'rgba(255,230,184,0.42)',
-    transform: [{ translateX: 1 }, { translateY: -1 }],
-  },
-  innerHighlight: {
-    flex: 1,
-    margin: 10,
-    borderWidth: 2,
-    borderColor: 'rgba(249,255,236,0.78)',
-    backgroundColor: 'rgba(241,249,224,0.032)',
-    shadowColor: '#eef9cf',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-  },
-});
 
 export default AnimatedBackground;

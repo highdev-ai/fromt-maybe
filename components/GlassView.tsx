@@ -1,58 +1,57 @@
-import React, { useEffect, useRef } from 'react';
-import { StyleProp, StyleSheet, useColorScheme, Animated, ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
-const AnimatedBlur = Animated.createAnimatedComponent(BlurView);
-
-type GlassViewProps = React.PropsWithChildren<{
-  style?: StyleProp<ViewStyle>;
-  scrollY?: number;
-}>;
-
-const GlassView: React.FC<GlassViewProps> = ({ children, style, scrollY = 0 }) => {
-  const scheme = useColorScheme();
-  const blur = useRef(new Animated.Value(30)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(blur, { toValue: 70, duration: 3000, useNativeDriver: false }),
-        Animated.timing(blur, { toValue: 30, duration: 3000, useNativeDriver: false }),
-      ])
-    ).start();
-  }, [blur]);
-
+const GlassView = ({ children, style }: any) => {
   return (
-    <AnimatedBlur
-      intensity={Math.min(72, 42 + scrollY / 8)}
-      tint={scheme === 'dark' ? 'dark' : 'extraLight'}
-      style={[
-        styles.container,
-        {
-          backgroundColor:
-            scheme === 'dark'
-              ? 'rgba(31,43,27,0.42)'
-              : 'rgba(247,253,235,0.34)',
-        },
-        style,
-      ]}
-    >
+    <View style={[styles.container, style]}>
+      {/* Blur */}
+      <BlurView intensity={70} tint="light" style={StyleSheet.absoluteFill} />
+
+      {/* Liquid gradient */}
+      <LinearGradient
+        colors={[
+          'rgba(255,255,255,0.25)',
+          'rgba(255,255,255,0.05)',
+          'rgba(255,255,255,0.18)',
+        ]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+
+      {/* Top highlight */}
+      <View style={styles.highlight} />
+
+      {/* Inner glow */}
+      <View style={styles.innerGlow} />
+
       {children}
-    </AnimatedBlur>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
+    borderRadius: 28,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(250,255,238,0.66)',
-    shadowColor: '#7f9369',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
-    elevation: 8,
+    borderColor: 'rgba(255,255,255,0.35)',
+  },
+  highlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+  },
+  innerGlow: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
   },
 });
 

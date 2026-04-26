@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import AnimatedBackground from '../components/AnimatedBackground';
 import GlassView from '../components/GlassView';
+import LiquidOverlay from '../components/LiquidOverlay';
 import { authService } from '../services/auth';
 import { LoginData } from '../types';
+
 
 interface LoginScreenProps {
   navigation: any; // Type from React Navigation
@@ -64,6 +66,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, setIsAuthenticate
 
   return (
     <AnimatedBackground>
+      <LiquidOverlay />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.container}
@@ -109,10 +112,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 22,
   },
-  panel: {
-    padding: 22,
-    borderRadius: 24,
-  },
   title: {
     fontSize: 28,
     fontWeight: '700',
@@ -120,23 +119,25 @@ const styles = StyleSheet.create({
     marginBottom: 22,
     color: '#263323',
   },
+  panel: {
+    padding: 24,
+  },
   input: {
-    height: 50,
-    borderColor: 'rgba(255,255,255,0.72)',
+    height: 52,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    marginBottom: 14,
+    backgroundColor: 'rgba(255,255,255,0.35)',
     borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    backgroundColor: 'rgba(247,253,235,0.36)',
-    color: '#263323',
+    borderColor: 'rgba(255,255,255,0.5)',
+    color: '#1f2a1f',
   },
   button: {
-    backgroundColor: 'rgba(105,132,84,0.76)',
-    height: 50,
-    borderRadius: 14,
+    height: 52,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
+    backgroundColor: 'rgba(101, 180, 100, 0.7)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.5)',
   },
