@@ -15,10 +15,10 @@ import {
 } from 'react-native-gesture-handler';
 
 import Animated, {
+    Easing,
     runOnJS,
     useAnimatedStyle,
     useSharedValue,
-    withSpring,
     withTiming,
 } from 'react-native-reanimated';
 
@@ -27,6 +27,13 @@ import { NewsItem } from '../types';
 import GlassView from './GlassView';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const RAISED_OFFSET = -SCREEN_HEIGHT * 0.2;
+const CLOSE_THRESHOLD = 100;
+const RAISE_THRESHOLD = -80;
+const TIMING_CONFIG = {
+  duration: 220,
+  easing: Easing.linear,
+};
 
 type DetailsModalProps = {
   visible: boolean;
@@ -37,18 +44,16 @@ type DetailsModalProps = {
 
 const DetailsModal: React.FC<DetailsModalProps> = ({ visible, onClose, item, mode = 'sheet' }) => {
   const translateY = useSharedValue(SCREEN_HEIGHT);
+  const gestureStartY = useSharedValue(0);
 
   const close = useCallback(() => {
-    translateY.value = withTiming(SCREEN_HEIGHT, {}, () => {
+    translateY.value = withTiming(SCREEN_HEIGHT, TIMING_CONFIG, () => {
       runOnJS(onClose)();
     });
   }, [onClose, translateY]);
 
   const open = useCallback(() => {
-    translateY.value = withSpring(0, {
-        damping: 20,
-        stiffness: 180,
-    });
+    translateY.value = withTiming(0, TIMING_CONFIG);
   }, [translateY]);
 
   useEffect(() => {
@@ -66,19 +71,20 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ visible, onClose, item, mod
 
   // 🔥 НОВИЙ gesture API
   const gesture = Gesture.Pan()
+    .onStart(() => {
+      gestureStartY.value = translateY.value;
+    })
     .onUpdate((e) => {
-      if (e.translationY > 0) {
-        translateY.value = e.translationY;
-      }
+      const nextY = gestureStartY.value + e.translationY;
+      translateY.value = Math.min(SCREEN_HEIGHT, Math.max(RAISED_OFFSET, nextY));
     })
     .onEnd((e) => {
-      if (e.translationY > 100) {
+      if (e.translationY > CLOSE_THRESHOLD) {
         runOnJS(close)();
+      } else if (e.translationY < RAISE_THRESHOLD || translateY.value <= RAISED_OFFSET / 2) {
+        translateY.value = withTiming(RAISED_OFFSET, TIMING_CONFIG);
       } else {
-        translateY.value = withSpring(0, {
-            damping: 20,
-            stiffness: 180,
-        });
+        translateY.value = withTiming(0, TIMING_CONFIG);
       }
     });
 
